@@ -18,10 +18,14 @@
 char ParameterBuffer[50] = {0};
 bool LookupParameter(char* ParameterName);
 
-
-enum Commands
-{
-  
+int FindSubstring(String haystack, String needle) 
+{  
+  for (int i = 0; i <= (int)(haystack.length() - needle.length()); i++) {    
+    if (haystack.substring(i,needle.length()+i) == needle) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 char ssid[] = "Avishay";      //  your network SSID (name)
@@ -37,15 +41,20 @@ void SendToClient(WiFiClient Client, String str)
   for(int i = 0; i < str.length(); i += CLIENT_CHUNK_SIZE)
   {
     String part = str.substring(i, i + CLIENT_CHUNK_SIZE - 1);
-    Client.print(part);
-    Serial.print(part);
+    Client.println(part);
+   // Serial.print(part);
   }
+  //Client.println("");
 }
+
+
 
 void setup() 
 {
   Serial.begin(9600);      // initialize serial communication
 
+setTC3clock();
+startTC3();
   // Initizalize LED pins
   pinMode(Led1, OUTPUT);     
   pinMode(Led2, OUTPUT); 
@@ -85,9 +94,16 @@ void loop()
       if (Client.available())                           // If there are bytes to read from the client,
       {             
         char c = Client.read();             // read a byte, then
-        Serial.write(c);                    // print it out the serial monitor
+       // Serial.write(c);                    // print it out the serial monitor
         if (c == '\n') // if the byte is a newline character
-        {                    
+        {
+          // If the parameters line was received
+          if (FindSubstring(CurrentLine, "GET") == 0)
+          {
+            // Parse command
+            bool ParseCommand(CurrentLine);
+          }
+              
           Serial.println("Got line: " + CurrentLine);
           // If the current line is blank, you got two newline characters in a row.
           // that's the end of the client HTTP request, so send a response:
@@ -95,8 +111,8 @@ void loop()
           {
             
             Serial.println("Sending HTML");
-            //String html = Html_Config();         
-            //SendToClient(Client, html);
+            String html = Html_Config();         
+            SendToClient(Client, html);
             
             break;
           }
@@ -109,22 +125,8 @@ void loop()
         {    // if you got anything else but a carriage return character,
           CurrentLine += c;      // add it to the end of the currentLine
         }
-
-        // Check the request parameters
-        if (CurrentLine.endsWith("GET /?ToMotor")) {
-          digitalWrite(Led1, HIGH);               // GET /H turns the LED on
-        }
-        if (CurrentLine.endsWith("GET /?ToNotMotor")) {
-          digitalWrite(Led1, LOW);                // GET /L turns the LED off
-        }
-        if (CurrentLine.endsWith("GET /?Start")) {
-          digitalWrite(Led2, HIGH);               // GET /H turns the LED on
-        }
-        if (CurrentLine.endsWith("GET /?Stop")) {
-          digitalWrite(Led2, LOW);                // GET /L turns the LED off
-        }
       }
-    }
+    } 
     
     // Close the connection:
     Client.stop();
@@ -132,9 +134,27 @@ void loop()
   }
 }
 
-bool LookupParameter(char* ParameterName)
+bool ParseCommand(char* GetLine)
 {
- //  if (currentLine.endsWith("GET /?ToMotor"))
+  Serial.println(GetLine);
+  if (FindSubstring(GetLine, "?ToMotor") != -1)
+  {
+    digitalWrite(Led1, HIGH);       
+  }
+  else if (FindSubstring(GetLine, "?ToNotMotor") != -1)
+  {
+   digitalWrite(Led1, LOW);     
+  }
+  else if(FindSubstring(GetLine, "?Start") != -1)
+  {
+    Serial.println("**********");
+    Serial.println(GetLine);
+    digitalWrite(Led2, HIGH);   
+  }
+  else if (FindSubstring(GetLine, "?Stop") != -1)
+  {
+    digitalWrite(Led2, LOW);              
+  }
 }
 
 void printWifiStatus() 
@@ -157,6 +177,53 @@ void printWifiStatus()
   Serial.print("To see this page in action, open a browser to http://");
   Serial.println(ip);
 }
+
+void setTC3clock()
+{
+  GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TCC2_TC3 ));
+  while (GCLK->STATUS.bit.SYNCBUSY);              // Wait for synchronization
+  TcCount16* TC = (TcCount16*) TC3; // get timer struct
+  TC->CTRLA.reg &= ~TC_CTRLA_ENABLE;   // Disable TC
+  while (TC->STATUS.bit.SYNCBUSY == 1); // wait for sync
+  TC->CTRLA.reg |= TC_CTRLA_MODE_COUNT16;  // Set Timer counter Mode to 16 bits
+  while (TC->STATUS.bit.SYNCBUSY == 1); // wait for sync
+  TC->CTRLA.reg |= TC_CTRLA_WAVEGEN_NFRQ; // Set TC as normal Normal Frq
+  while (TC->STATUS.bit.SYNCBUSY == 1); // wait for sync
+  TC->CTRLA.reg |= TC_CTRLA_PRESCALER_DIV8;   // Set perscaler
+  while (TC->STATUS.bit.SYNCBUSY == 1); // wait for sync
+  // Interrupts
+  TC->INTENSET.reg = 0;              // disable all interrupts
+  TC->INTENSET.bit.OVF = 1;          // enable overfollow interrup
+  // Enable InterruptVector
+  NVIC_EnableIRQ(TC3_IRQn);
+  // Enable TC
+  TC->CTRLA.reg |= TC_CTRLA_ENABLE;
+  while (TC->STATUS.bit.SYNCBUSY == 1); // wait for sync
+}
+
+
+void stopTC3()
+{
+  TcCount16* TC = (TcCount16*) TC3; // get timer struct
+    TC->CTRLBSET.reg |= TC_CTRLBSET_CMD_STOP;   // Stop counter
+}
+
+
+void startTC3()
+{
+  TcCount16* TC = (TcCount16*) TC3; // get timer struct
+    TC->CTRLBSET.reg |= TC_CTRLBSET_CMD_RETRIGGER;   //  Start
+} 
+
+
+void TC3_Handler()  // Interrupt on overflow
+{
+  TcCount16* TC = (TcCount16*) TC3; // get timer struct
+    TC->INTFLAG.bit.OVF = 1;    // writing a one clears the ovf flag
+
+  // Serial.println("*");
+}
+
 
 
 
