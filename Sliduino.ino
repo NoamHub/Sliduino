@@ -4,13 +4,10 @@
 #include <WiFiSSLClient.h>
 #include <WiFiUdp.h>
 #include "MainWindow.h"
-
-/*
- * This example is modified from the original file 
- * https://github.com/arduino-libraries/WiFi101/blob/master/examples/SimpleWebServerWiFi/SimpleWebServerWiFi.ino
- */
 #include <SPI.h>
 #include <WiFi101.h>
+
+#include "TimerInterface.h"
 
 #define CLIENT_CHUNK_SIZE (1024)
 
