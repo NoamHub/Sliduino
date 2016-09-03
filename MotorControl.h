@@ -1,3 +1,5 @@
+#pragma once
+
 // MotorControl.h
 
 // Written by NoamHub 3.9.16
@@ -33,11 +35,12 @@ class CMotorControl
 {
 public:
 	
-	void Init (MicrostepMode Mode, StepPin, DirPin, MS1Pin, MS2Pin, EnablePin, MotorStopPin, NoMotorStopPin);
+	void Init (MicrostepMode Mode, int StepPin, int DirPin, int MS1Pin, int MS2Pin, 
+				  int EnablePin, int MotorButtonPin, int NoMotorButtonPin);
 	
-	void Set(MotorDirection Direction, unsigned int Interval, unsigned int SleepTime);
+	bool Set(MotorDirection Direction, unsigned int Interval, unsigned int SleepTime);
 	
-	void Start();
+	bool Start();
 	
 	void Stop();
 	
@@ -48,8 +51,7 @@ private:
 	void Enable();
 	void Disable();
 	
-	bool DidReachMotor();
-	bool DidReachNoMotor();
+	bool DidReachEnd();
 	
 	void ToggleStepPin();
 	
@@ -89,7 +91,7 @@ void CMotorControl::RegisterTimerInterrupt()
 			if (Countdown == (Interval + 1) / 2)
 			{
 				// Toggle the step pin
-				ToggleStepPin()
+				ToggleStepPin();
 			}
 			// Step pin sets to LOW
 			else if (Countdown == 0)
@@ -118,7 +120,8 @@ void CMotorControl::RegisterTimerInterrupt()
 	}
 }
 
-void CMotorControl::Init (MicrostepMode MSMode, StepPin, DirPin, MS1Pin, MS2Pin, EnablePin)
+void CMotorControl::Init (MicrostepMode MSMode, int StepPin, int DirPin, int MS1Pin, 
+									int MS2Pin, int EnablePin, int MotorButtonPin, int NoMotorButtonPin)
 {
 	// Don't start before the direction and interval are set for the first time
 	bool IsSet = false;
@@ -135,8 +138,8 @@ void CMotorControl::Init (MicrostepMode MSMode, StepPin, DirPin, MS1Pin, MS2Pin,
 	pinMode(this->MS1Pin = MS1Pin, OUTPUT);
 	pinMode(this->MS2Pin = MS2Pin, OUTPUT);
 	//pinMode(this->SleepPin = SleepPin, OUTPUT);
-	pinMode(this->MotorStopPin = MotorStopPin, INPUT);
-	pinMode(this->NoMotorStopPin = NoMotorStopPin, INPUT);
+	pinMode(this->MotorButtonPin = MotorButtonPin, INPUT);
+	pinMode(this->NoMotorButtonPin = NoMotorButtonPin, INPUT);
 	
 	// Set the step pin to LOW ***************************** questionable
 	CurrentStepStatus = LOW;
@@ -181,7 +184,7 @@ bool CMotorControl::Set(MotorDirection Direction, unsigned int Interval, unsigne
 	
 	digitalWrite(DirPin, Direction);
 	this->Interval = Interval;
-	this->SleepTime = SleepTime;
+	this->SleepCountdown = SleepTime;
 	
 	IsSet = true;
 }
@@ -223,12 +226,12 @@ bool CMotorControl::DidReachEnd()
 	if (Direction == TO_MOTOR)
 		Button = MotorButtonPin;
 	if (Direction == TO_NO_MOTOR)
-		Button = NoMotorButtonPin
+		Button = NoMotorButtonPin;
 	
-	int Coutner = 0;
+	int Counter = 0;
 	for (int i = 0; i < NUM_OF_BUTTON_SAMPLES; i++)
 		if (digitalRead(Button))
-			Coutner++;
+			Counter++;
 			
 	return (Counter >= (NUM_OF_BUTTON_SAMPLES + 1) / 2);
 }
@@ -252,7 +255,7 @@ void CMotorControl::Disable()
 
 
 
-
+CMotorControl MotorControl;
 
 
 

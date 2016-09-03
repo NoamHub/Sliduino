@@ -85,6 +85,7 @@ void CTimer::SetInterval(int Mili)
   TC->PER.reg = Mili * 1000;              // Set counter Top using the PER register
   while (TC->SYNCBUSY.bit.PER == 1); // wait for sync
 }
+
 CTimer Timer;
 
 void TCC0_Handler()

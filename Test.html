@@ -1,120 +1,137 @@
-
 <!DOCTYPE HTML>
 <html>
-<head>
-<style>
-a.button {-webkit-appearance: button;
--moz-appearance: button;
-appearance: button;
-line-height:175%;
-text-align:center;
-text-decoration: none;
-font-size: 50px;
-color: initial;
-margin: 0 5%;
-padding: 0 2%;
-}
+	<head>
+		<style>
+		a.button {
+			-webkit-appearance: button;
+			-moz-appearance: button;
+			appearance: button;
+			line-height:175%;
+			text-align:center;
+			text-decoration: none;
+			font-size: 50px;
+			color: initial;
+			margin: 0 5%;
+			padding: 0 2%;
+		}
 
-input{
-	width: 6%;
-	font-size:45px;
-}
+		input{
+			width: 6%;
+			font-size:45px;
+		}
 
-h1{   
-  font-size:60px;   
-}  
+		h1{   
+		  font-size:60px;
+		  margin-bottom: 10px;
+		}  
 
-h2{
-	width:10%;
-	font-size:45px;
-}
+		h2{
+			font-size:45px;
+			 margin: 2% 0%;
+			 display: inline-block;
+		}
+		
+		.left_header {
+			 padding: 0 64px 0 5%;
+		}
 
-hr{
-	margin:5% 0;
-}
+		hr{
+			margin:5% 0;
+		}
+		
+		.direction_inputs{
+			font-size: 47px;
+			font-weight: bold;
+		}
+		</style>
+	</head>
+	<body>
 
-}
+		<h1> Direction </h1>
 
-</style>
-</head>
-<body>
+		<form method="GET" action="" id="main_form">
+			<div class="direction_inputs">
+				<label>
+					<input type="radio" name="direction" value="0" checked /> To Motor
+				</label>
 
-<h1> Directin <h1/>
+				<label>
+					<input type="radio" name="direction" value="1" /> To !Motor
+				</label>
+			</div>
 
-<a href="/?ToMotor" class="button" 
-	 style="background-color:powderblue; ">To Motor </a>
-	 
-<a href="/?ToNotMotor" class="button" 
-	 style="background-color:powderblue; float: right;">To !Motor </a>
+			<!-- Mid section -->
+			<hr size="10%" noshade color = "brown" > 
 
-<! Mid section >
-<hr size="10%" noshade color = "brown" > 
+			<h1> Operation </h1>
 
-<h1> Operation </h1>
+			<h2 class="left_header"> Delay: </h2>
+			<h2 style = "padding: 0 0 0 30px; "> [hh:] </h2>
+			<input type = "text" name = "DelayHours" value = "00"/>
+			
+			<h2 style = "padding: 0 0 0 3%; "> [mm:] </h2>
+			<input type = "text" name = "DelayMinutes" value = "00"/>
+			
+			<h2 style = "padding: 0 0 0 3%; "> [ss:] </h2>
+			<input type = "text" name = "DelaySeconds" value = "00"/>
+		
+			<br/>
+			<br/>
+			
+			<h2 style = "padding: 0 10px 0 5%;"> Run Time: </h2>
+			<h2 style = ""> [hh:] </h2>
+			<input type = "text" name = "RunTimeHours" value = "00"/>
+			
+			<h2 style = "padding: 0 0 0 3%; "> [mm:] </h2>
+			<input type = "text" name = "RunTimeMinutes" value = "00"/>
+			
+			<h2 style = "padding: 0 0 0 3%; "> [ss:] </h2>
+			<input type = "text" name = "RunTimeSeconds" value = "00"/>
+		</form>
+		<br/>
+		<br/>
 
-<h2 style = "display:inline; padding: 0 64px 0 5%;"> Delay: </h2>
-<h2 style = "display:inline; padding: 0 0 0 30px; "> [hh:] </h2>
-<input type = "text" name = "DelayHours" value = "00"/>
-<h2 style = "display:inline; padding: 0 0 0 3%; "> [mm:] </h2>
-<input type = "text" name = "DelayMinutes" value = "00"/>
-<h2 style = "display:inline; padding: 0 0 0 3%; "> [ss:] </h2>
-<input type = "text" name = "DelaySeconds" value = "00"/>
-<br/>
-<br/>
-<br/>
-<h2 style = "display:inline; padding: 0 10px 0 5%;"> Run Time: </h2>
-<h2 style = "display:inline; "> [hh:] </h2>
-<input type = "text" name = "RunTimeHours" value = "00"/>
-<h2 style = "display:inline; padding: 0 0 0 3%; "> [mm:] </h2>
-<input type = "text" name = "RunTimeMinutes" value = "00"/>
-<h2 style = "display:inline; padding: 0 0 0 3%; "> [ss:] </h2>
-<input type = "text" name = "RunTimeSeconds" value = "00"/>
-
-<br/>
-<br/>
-<br/>
-<br/>
-
-<a href="/?Start" class="button" 
-style="background-color:green; margin: 0 2% 0 5%; "> Start </a>
-
-<a href="/?Pause" class="button" 
-style="background-color:orange; margin: 0 2% "> Pause </a>
-
-<a href="/?Stop" class="button" 
-style="background-color:red;  margin: 0 2%  "> Stop </a>
-
-<a href="/?Reset" class="button" 
-style="background-color:powderblue; float:right; margin: 0 5% 0 0;"> Reset </a>
+		<a href="#" onclick="document.getElementById('main_form').submit()" class="button" 
+		style="background-color:green; margin: 0 2% 0 5%; "> Start </a>
 
 
-<! Bottom section >
-<hr size="10%" noshade color = "brown"> 
+		<a href="/?Stop" class="button" 
+		style="background-color:red;  margin: 0 2%  "> Stop </a>
 
-<h1> Information </h1>
+		<a href="/?Reset" class="button" 
+		style="background-color:powderblue; float:right; margin: 0 5% 0 0;"> Reset </a>
 
-<h2 style = "display:inline; padding: 0 64px 0 5%;"> Time to start: [hh:mm:ss] </h2>
-<br/>
-<br/>
-<h2 style = "display:inline; padding: 0 64px 0 5%;"> Running: [hh:mm:ss] </h2>
 
-<h2 style = "display:inline; padding: 0 64px 0 5%; "> End Time: [hh:mm:ss] </h2>
-<br/>
-<br/>
+		<!-- Bottom section -->
+		<hr size="10%" noshade color = "brown"> 
 
-<h2 style = "display:inline; padding: 0 64px 0 5%;"> #Staps: ####</h2>
+		<h1> Information </h1>
 
-</body>
+		<h2 class="left_header"> Time to start: [hh:mm:ss] </h2>
+
+		<h2 class="left_header"> Running: [hh:mm:ss] </h2>
+
+		<h2 class="left_header"> End Time: [hh:mm:ss] </h2>
+
+		<h2 class="left_header"> #Steps: <span id="steps">####</span></h2>
+
+				
+		<script>
+			function pollSteps(){
+				var x = new (this.XMLHttpRequest || ActiveXObject)('MSXML2.XMLHTTP.3.0');
+				var url = '/?pollSteps';
+				x.open('GET', url);
+				
+				x.onreadystatechange = function() {
+					if(x.readyState === 4){
+						document.getElementById('steps').innerHTML = x.responseText;
+					}
+				}
+				x.send();
+			}
+			
+			setInterval(pollSteps, 5000);
+			pollSteps();
+		</script>
+	</body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-

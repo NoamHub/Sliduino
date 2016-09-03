@@ -8,6 +8,7 @@
 #include <WiFi101.h>
 
 #include "TimerInterface.h"
+#include "MotorControl.h"
 
 #define CLIENT_CHUNK_SIZE (1024)
 
@@ -32,6 +33,13 @@ const int Led2 = 7;
 
 int status = WL_IDLE_STATUS;
 WiFiServer server(80);
+
+int Itamar = 1;
+
+void foo()
+{
+  Itamar++;
+}
 
 void setup() 
 {
@@ -61,6 +69,12 @@ void setup()
   
   server.begin();                           // start the web server on port 80
   printWifiStatus();                        // you're connected now, so print out the status  
+
+
+  Timer.Init();
+  Timer.SetInterval(1000);
+  Timer.Start();
+  Timer.SetCallback(foo);
 }
 
 void loop() 
@@ -80,11 +94,13 @@ void loop()
        // Serial.write(c);                    // print it out the serial monitor
         if (c == '\n') // if the byte is a newline character
         {
+          bool SendHTML;
+          
           // If the parameters line was received
           if (FindSubstring(CurrentLine, "GET") == 0)
           {
             // Parse command
-            bool ParseCommand(CurrentLine);
+            SendHTML = ParseCommand(CurrentLine);
           }
               
           Serial.println("Got line: " + CurrentLine);
@@ -92,12 +108,20 @@ void loop()
           // that's the end of the client HTTP request, so send a response:
           if (CurrentLine.length() == 0) 
           {
-            Serial.println("Sending HTML");
-            String html = Html_Config();         
-            for(int i = 0; i < html.length(); i += CLIENT_CHUNK_SIZE)
+            if (SendHTML)
             {
-              String part = html.substring(i, i + CLIENT_CHUNK_SIZE - 1);
-              Client.print(part);
+              Serial.println("Sending HTML");
+              String html = Html_Config();         
+              for(int i = 0; i < html.length(); i += CLIENT_CHUNK_SIZE)
+              {
+                String part = html.substring(i, i + CLIENT_CHUNK_SIZE - 1);
+                Client.print(part);
+                Serial.print(part);
+              }
+            }
+            else
+            {
+              Client.print(String(Itamar));
             }
             
             break;
@@ -120,9 +144,14 @@ void loop()
   }
 }
 
-bool ParseCommand(char* GetLine)
+bool ParseCommand(String GetLine)
 {
   Serial.println(GetLine);
+  if (FindSubstring(GetLine, "?pollSteps") != -1)
+  {
+    return false;
+  }
+  return true;
   if (FindSubstring(GetLine, "?ToMotor") != -1)
   {
     digitalWrite(Led1, HIGH);       
