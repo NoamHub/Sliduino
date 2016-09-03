@@ -1,6 +1,11 @@
 
 String Html_Config() {
-	String body = "<html>"
+	//String body = 
+	return
+	"HTTP/1.1 200 OK" "\n"
+  "Content-Type: text/html" "\n" "\n"
+  "<!DOCTYPE HTML>""\n" 
+	 "<html>"
 	"<head>"
 		"<style>"
 			"a.button {-webkit-appearance: button;"
@@ -62,6 +67,7 @@ String Html_Config() {
 			"<br/>"
 			"<br/>"
 			"<br/>"
+     
 			"<h2 style = 'display:inline; padding: 0 10px 0 5%;'> Run Time: </h2>"
 			"<h2 style = 'display:inline; '> hh: </h2>"
 			"<input type = 'text' name = 'RunTimeHours' value = '00'/>"
@@ -100,14 +106,28 @@ String Html_Config() {
 			"<br/>"
 			"<br/>"
 			"<h2 style = 'display:inline; padding: 0 64px 0 5%; font-size:15px;'> #Steps: #### </h2>"
+     
 		"</body>"
 	"</html>" "\n";
 
+/*
 	String headers = "HTTP/1.1 200 OK" "\n"
 		"Content-Type: text/html" "\n"
 		"Content-Length: " + String(body.length()) + "\n"
 		"\n";
-	
 	return headers + body;
+*/
+
+
+
+  
 }
+
+
+
+
+
+
+
+
 

@@ -33,25 +33,10 @@ const int Led2 = 7;
 int status = WL_IDLE_STATUS;
 WiFiServer server(80);
 
-void SendToClient(WiFiClient Client, String str)
-{
-  for(int i = 0; i < str.length(); i += CLIENT_CHUNK_SIZE)
-  {
-    String part = str.substring(i, i + CLIENT_CHUNK_SIZE - 1);
-    Client.println(part);
-   // Serial.print(part);
-  }
-  //Client.println("");
-}
-
-
-
 void setup() 
 {
   Serial.begin(9600);      // initialize serial communication
 
-setTC3clock();
-startTC3();
   // Initizalize LED pins
   pinMode(Led1, OUTPUT);     
   pinMode(Led2, OUTPUT); 
@@ -77,6 +62,7 @@ startTC3();
   server.begin();                           // start the web server on port 80
   printWifiStatus();                        // you're connected now, so print out the status  
 }
+
 void loop() 
 {
   WiFiClient Client = server.available();   // listen for incoming clients
@@ -109,7 +95,11 @@ void loop()
             
             Serial.println("Sending HTML");
             String html = Html_Config();         
-            SendToClient(Client, html);
+            for(int i = 0; i < html.length(); i += CLIENT_CHUNK_SIZE)
+            {
+              String part = html.substring(i, i + CLIENT_CHUNK_SIZE - 1);
+              Client.print(part);
+            }
             
             break;
           }
@@ -175,51 +165,8 @@ void printWifiStatus()
   Serial.println(ip);
 }
 
-void setTC3clock()
-{
-  GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TCC2_TC3 ));
-  while (GCLK->STATUS.bit.SYNCBUSY);              // Wait for synchronization
-  TcCount16* TC = (TcCount16*) TC3; // get timer struct
-  TC->CTRLA.reg &= ~TC_CTRLA_ENABLE;   // Disable TC
-  while (TC->STATUS.bit.SYNCBUSY == 1); // wait for sync
-  TC->CTRLA.reg |= TC_CTRLA_MODE_COUNT16;  // Set Timer counter Mode to 16 bits
-  while (TC->STATUS.bit.SYNCBUSY == 1); // wait for sync
-  TC->CTRLA.reg |= TC_CTRLA_WAVEGEN_NFRQ; // Set TC as normal Normal Frq
-  while (TC->STATUS.bit.SYNCBUSY == 1); // wait for sync
-  TC->CTRLA.reg |= TC_CTRLA_PRESCALER_DIV8;   // Set perscaler
-  while (TC->STATUS.bit.SYNCBUSY == 1); // wait for sync
-  // Interrupts
-  TC->INTENSET.reg = 0;              // disable all interrupts
-  TC->INTENSET.bit.OVF = 1;          // enable overfollow interrup
-  // Enable InterruptVector
-  NVIC_EnableIRQ(TC3_IRQn);
-  // Enable TC
-  TC->CTRLA.reg |= TC_CTRLA_ENABLE;
-  while (TC->STATUS.bit.SYNCBUSY == 1); // wait for sync
-}
 
 
-void stopTC3()
-{
-  TcCount16* TC = (TcCount16*) TC3; // get timer struct
-    TC->CTRLBSET.reg |= TC_CTRLBSET_CMD_STOP;   // Stop counter
-}
-
-
-void startTC3()
-{
-  TcCount16* TC = (TcCount16*) TC3; // get timer struct
-    TC->CTRLBSET.reg |= TC_CTRLBSET_CMD_RETRIGGER;   //  Start
-} 
-
-
-void TC3_Handler()  // Interrupt on overflow
-{
-  TcCount16* TC = (TcCount16*) TC3; // get timer struct
-    TC->INTFLAG.bit.OVF = 1;    // writing a one clears the ovf flag
-
-  // Serial.println("*");
-}
 
 
 
