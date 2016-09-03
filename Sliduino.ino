@@ -92,7 +92,6 @@ void loop()
           // that's the end of the client HTTP request, so send a response:
           if (CurrentLine.length() == 0) 
           {
-            
             Serial.println("Sending HTML");
             String html = Html_Config();         
             for(int i = 0; i < html.length(); i += CLIENT_CHUNK_SIZE)
