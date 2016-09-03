@@ -87,13 +87,12 @@ void CMotorControl::RegisterTimerInterrupt()
 		case(MOVE):
 			Countdown--;
 			
-			// Step pin sets to HIGH
-			if (Countdown == (Interval + 1) / 2)
+			// Sets the step pin back to low
+			if (Countdown == Interval / 2)
 			{
 				// Toggle the step pin
 				ToggleStepPin();
 			}
-			// Step pin sets to LOW
 			else if (Countdown == 0)
 			{
 				// Ensure the camera did not reach the end
@@ -101,9 +100,8 @@ void CMotorControl::RegisterTimerInterrupt()
 					Stop();
 				else
 				{
-					// Toggle the step pin
+					// Toggle the step pin to HIGH
 					ToggleStepPin();
-					
 					// Re-arm the countdown variable
 					Countdown = Interval;
 				}
@@ -195,17 +193,19 @@ bool CMotorControl::Start()
 		return false;
 	
 	Countdown = Interval;
-	CurrentStepStatus = LOW;
-	digitalWrite(StepPin, CurrentStepStatus);
-	
+
 	if (SleepCountdown == 0)
 	{
 		OpMode = MOVE;
 		Enable();
 		delay(1);
+		CurrentStepStatus = HIGH;
+		digitalWrite(StepPin, CurrentStepStatus);
 	}
 	else
 	{
+		CurrentStepStatus = LOW;
+		digitalWrite(StepPin, CurrentStepStatus);
 		OpMode = SLEEP;
 		Disable();
 	}
@@ -217,6 +217,9 @@ void CMotorControl::Stop()
 {
 	OpMode = IDLE;
 	Disable();
+	
+	CurrentStepStatus = LOW;
+	digitalWrite(StepPin, CurrentStepStatus);
 }
 
 bool CMotorControl::DidReachEnd()
@@ -256,6 +259,7 @@ void CMotorControl::Disable()
 
 
 CMotorControl MotorControl;
+
 
 
 
