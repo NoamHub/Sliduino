@@ -183,6 +183,7 @@ bool CMotorControl::Set(MotorDirection Direction, unsigned int Interval, unsigne
 	digitalWrite(DirPin, Direction);
 	this->Interval = Interval;
 	this->SleepCountdown = SleepTime;
+	this->Direction = Direction;
 	
 	IsSet = true;
 }
@@ -228,7 +229,7 @@ bool CMotorControl::DidReachEnd()
 	
 	if (Direction == TO_MOTOR)
 		Button = MotorButtonPin;
-	if (Direction == TO_NO_MOTOR)
+	else if (Direction == TO_NO_MOTOR)
 		Button = NoMotorButtonPin;
 	
 	int Counter = 0;

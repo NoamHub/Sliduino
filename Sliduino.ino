@@ -36,9 +36,9 @@ WiFiServer server(80);
 
 int Itamar = 1;
 
-void foo()
+void MiliSecCallback()
 {
-  Itamar++;
+  MotorControl.RegisterTimerInterrupt();
 }
 
 void setup() 
@@ -52,10 +52,8 @@ void setup()
   // attempt to connect to Wifi network:
   while (status != WL_CONNECTED) 
   {
-    digitalWrite(Led1, LOW);
     Serial.print("Attempting to connect to Network named: ");
     Serial.println(ssid);                   // print the network name (SSID);
-    digitalWrite(Led1, HIGH);
     
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
     status = WiFi.begin(ssid, pass);
@@ -70,11 +68,12 @@ void setup()
   server.begin();                           // start the web server on port 80
   printWifiStatus();                        // you're connected now, so print out the status  
 
+  MotorControl.Init(FULL_STEP, 7, 8, 8, 8, 8, 10, 12);
 
   Timer.Init();
-  Timer.SetInterval(1000);
+  Timer.SetInterval(1);
   Timer.Start();
-  Timer.SetCallback(foo);
+  Timer.SetCallback(MiliSecCallback);
 }
 
 void loop() 
@@ -99,11 +98,13 @@ void loop()
           // If the parameters line was received
           if (FindSubstring(CurrentLine, "GET") == 0)
           {
+            
+            Serial.println("Command");
             // Parse command
             SendHTML = ParseCommand(CurrentLine);
           }
               
-          Serial.println("Got line: " + CurrentLine);
+          //Serial.println("Got line: " + CurrentLine);
           // If the current line is blank, you got two newline characters in a row.
           // that's the end of the client HTTP request, so send a response:
           if (CurrentLine.length() == 0) 
@@ -116,7 +117,7 @@ void loop()
               {
                 String part = html.substring(i, i + CLIENT_CHUNK_SIZE - 1);
                 Client.print(part);
-                Serial.print(part);
+               // Serial.print(part);
               }
             }
             else
@@ -147,11 +148,12 @@ void loop()
 bool ParseCommand(String GetLine)
 {
   Serial.println(GetLine);
+  /*
   if (FindSubstring(GetLine, "?pollSteps") != -1)
   {
     return false;
   }
-  return true;
+  
   if (FindSubstring(GetLine, "?ToMotor") != -1)
   {
     digitalWrite(Led1, HIGH);       
@@ -160,16 +162,28 @@ bool ParseCommand(String GetLine)
   {
    digitalWrite(Led1, LOW);     
   }
-  else if(FindSubstring(GetLine, "?Start") != -1)
+  else */
+  Serial.println("?? + ");
+  Serial.println(FindSubstring(GetLine, "/Start"));
+  
+  if(FindSubstring(GetLine, "/Start") > 0)
   {
-    Serial.println("**********");
-    Serial.println(GetLine);
-    digitalWrite(Led2, HIGH);   
+    Serial.println("Start");
+  MotorControl.Set(TO_MOTOR, 300, 0);
+  MotorControl.Start();
   }
-  else if (FindSubstring(GetLine, "?Stop") != -1)
+  else if (FindSubstring(GetLine, "/Stop") > 0 )
   {
-    digitalWrite(Led2, LOW);              
+    Serial.println("Stop");
+  MotorControl.Stop();          
   }
+   else if (FindSubstring(GetLine, "/Reset") > 0 )
+  {
+    Serial.println("Reset");
+    MotorControl.Set(TO_NO_MOTOR, 1000, 0);
+  MotorControl.Start();              
+  }
+  return true;
 }
 
 void printWifiStatus() 

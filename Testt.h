@@ -49,7 +49,7 @@
 
 		"<h1> Direction </h1>\n"
 
-		"<form method=\"GET\" action=\"\" id=\"main_form\">\n"
+		"<form method=\"GET\" action=\"/Start\" id=\"main_form\">\n"
 			"<div class=\"direction_inputs\">\n"
 				"<label>\n"
 					"<input type=\"radio\" name=\"direction\" value=\"0\" checked /> To Motor\n"
@@ -94,11 +94,10 @@
 		"<a href=\"#\" onclick=\"document.getElementById('main_form').submit()\" class=\"button\" \n"
 		"style=\"background-color:green; margin: 0 2% 0 5%; \"> Start </a>\n"
 
-
-		"<a href=\"/?Stop\" class=\"button\" \n"
+		"<a href=\"/Stop\" class=\"button\" \n"
 		"style=\"background-color:red;  margin: 0 2%  \"> Stop </a>\n"
 
-		"<a href=\"/?Reset\" class=\"button\" \n"
+		"<a href=\"/Reset\" class=\"button\" \n"
 		"style=\"background-color:powderblue; float:right; margin: 0 5% 0 0;\"> Reset </a>\n"
 
 
@@ -130,8 +129,8 @@
 				"x.send();\n"
 			"}\n"
 			
-			"setInterval(pollSteps, 5000);\n"
-			"pollSteps();\n"
+			"//setInterval(pollSteps, 5000);\n"
+			"//pollSteps();\n"
 		"</script>\n"
 	"</body>\n"
 "</html>\n"
